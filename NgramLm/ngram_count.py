@@ -10,6 +10,8 @@ class NgramCount:
         self.ngram_dict = {}
         self.input_file = ""
         self.ngram_order = int(order)
+        self.sent_begin = "<s>"
+        self.sent_end = "</s>"
         for order in range(self.ngram_order):
             self.ngram_dict[order+1] = {}
         
@@ -20,6 +22,8 @@ class NgramCount:
             line = line.lstrip()
             line = line.rstrip()
             words = line.split()
+            words.insert(0,self.sent_begin)
+            words.append(self.sent_end)
             for order in range(self.ngram_order):
                 order = order + 1
                 begin = 0
@@ -29,7 +33,7 @@ class NgramCount:
                     if word_str not in self.ngram_dict[order]:
                         self.ngram_dict[order][word_str] = 0
                     self.ngram_dict[order][word_str] += 1 
-                index = begin + order 
+                index = begin + order + 1
                 while index <=len(words):
                     word = words[index-order:index]
                     word_str = " ".join(word)
