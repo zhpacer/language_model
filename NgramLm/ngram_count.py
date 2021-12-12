@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import sys
 import re
 import getopt
@@ -16,7 +17,7 @@ class NgramCount:
             self.ngram_dict[order+1] = {}
         
     def Count(self,file):
-        f = open(file,"r")
+        f = open(file,"r",encoding='utf-8')
         line = f.readline()
         while len(line) > 0:
             line = line.lstrip()
@@ -48,7 +49,7 @@ class NgramCount:
     def GetNgramCount(self):
         return self.ngram_dict
     def WriteCount(self,ouput):
-        o = open(ouput,"w")
+        o = open(ouput,"w",encoding='utf-8')
         for order in range(self.ngram_order): 
             order = order + 1
             for (word,count) in self.ngram_dict[order].items():
