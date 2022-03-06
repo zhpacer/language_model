@@ -1,5 +1,6 @@
 import sys
 import re
+import math
 import argparse
 from ngram_count import *
 
@@ -12,9 +13,9 @@ def get_parser():
     parser.add_argument('-discount_params',type=str,nargs='?',default='0.5',help='parameters for the discount method')
     parser.add_argument('-lm',type=str,nargs='?',default='ngram.lm',help='the lm output fle')
     return parser
-def check_args(args):
-    if (len(args.input) <= 0) or (len(args.count) <= 0):
-        args.print_help()
+def check_args(parser,args):
+    if ((args is None) or (args.input is None) or (len(args.input) <= 0) or (args.count is None) or (len(args.count) <= 0)):
+        parser.print_help()
         sys.exit(0)
 
 
@@ -82,7 +83,7 @@ class Ngram:
                 if base_prob == 0:
                     backoff_prob = 0.0
                 else:
-                    backoff_prob = remain_prob/base_prob
+                    backoff_prob = math.log10(remain_prob/base_prob)
                 self.ngram_prob[order][ngram]["backoff"] = backoff_prob
     def CalcProb(self):
         self.CalcDiscountProb()
@@ -103,7 +104,7 @@ class Ngram:
                     raw_prob = (float(count)-reduce_count)/float(total_unigram_count)
                     if ngram not in self.ngram_prob[order]:
                         self.ngram_prob[order][ngram] = {}
-                    self.ngram_prob[order][ngram]["prob"]=raw_prob
+                    self.ngram_prob[order][ngram]["prob"]=math.log10(raw_prob)
                     self.ngram_prob[order][ngram]["backoff"]=0.0
                 else:
                     words = ngram.split()
@@ -119,7 +120,7 @@ class Ngram:
                     raw_prob = (count-reduce_count)/base_count
                     if ngram not in self.ngram_prob[order]:
                         self.ngram_prob[order][ngram] = {}
-                    self.ngram_prob[order][ngram]["prob"]=raw_prob
+                    self.ngram_prob[order][ngram]["prob"]=math.log10(raw_prob)
                     self.ngram_prob[order][ngram]["backoff"]=0.0
     def WriteProb(self,prob_file):
         o = open(prob_file,"w",encoding='utf-8')
@@ -129,6 +130,21 @@ class Ngram:
             for word in self.ngram_prob[order].keys():
                 o.write("%s\t%f\t%f\n" % (word,self.ngram_prob[order][word]["prob"],self.ngram_prob[order][word]["backoff"]) )
         o.close()
+    def WriteArapa(self,prob_file):
+       o = open(prob_file,"w",encoding='utf-8')
+       o.write("\data\n\n")
+       for order in range(self.ngram_order): 
+            order = order + 1
+            o.write("order %d = %d\n" % (order,len(self.ngram_prob[order].keys())))
+       o.write("\n\n")
+       for order in range(self.ngram_order): 
+            order = order + 1
+            o.write("\%d-grams:\n" % (order))
+            for word in self.ngram_prob[order].keys():
+                o.write("%f\t%s\t%f\n" % (self.ngram_prob[order][word]["prob"],word,self.ngram_prob[order][word]["backoff"]) )
+            o.write("\n\n")
+       o.write("\end\\\n")
+
                                     
 
 
@@ -142,7 +158,7 @@ class Ngram:
 if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
-    check_args(args)
+    check_args(parser,args)
     for arg in vars(args):
         print("%s : %s" % (arg,getattr(args,arg)))
 
@@ -153,5 +169,6 @@ if __name__ == '__main__':
     print("finish ngram count")
     ngram_prob = Ngram(ngram_count.GetNgramCount(),args.order,args.discount,args.discount_params)
     ngram_prob.CalcProb()
-    ngram_prob.WriteProb(args.lm)
+    #ngram_prob.WriteProb(args.lm)
+    ngram_prob.WriteArapa(args.lm)
     print("finish lm training")
