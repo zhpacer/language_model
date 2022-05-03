@@ -65,6 +65,8 @@ class Ngram:
             return self.ngram_prob[order][ngram][0]
         else:
             #now backoff
+            if order == 1:
+                return 0.0
             wds = ngram.split()
             backoff_ngram = " ".join(wds[0:order-1])
             remain_ngram = " ".join(wds[1:order])
