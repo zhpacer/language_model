@@ -1,3 +1,9 @@
+
+https://docs.github.com/cn/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions  
+**The Cauchy-Schwarz Inequality**
+$$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)$$
+
+math example: $\sqrt{3x-1}+(1+x)^2$  
 ngram-discount
 NAME
 ngram-discount - notes on the N-gram smoothing implementations in SRILM
@@ -5,7 +11,6 @@ NOTATION
 a_z
 An N-gram where a is the first word, z is the last word, and "_" represents 0 or more words in between.
 p(a_z)  
-  test: $\sqrt{3x-1}+(1+x)^2$   
 The estimated conditional probability of the nth word z given the first n-1 words (a_) of an N-gram.
 a_
 The n-1 word prefix of the N-gram a_z.
