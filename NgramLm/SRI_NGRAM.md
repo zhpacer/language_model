@@ -2,9 +2,6 @@
 https://docs.github.com/cn/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions  
 **The Cauchy-Schwarz Inequality**
 $$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)$$
-
-math example: $\sqrt{3x-1}+(1+x)^2$  
-
 # **ngram-discount**  
 NAME  
 *ngram-discount - notes on the N-gram smoothing implementations in SRILM*  
@@ -18,9 +15,8 @@ The n-1 word prefix of the N-gram $a_1\cdots a_n$ .
  $a_2\cdots a_{n}$
 The n-1 word suffix of the N-gram $a_1\cdots a_n$ .  
  $C(a_1\cdots a_{n-1})$  
-The count of N-gram $a_1\cdots a_n$ in the training data.
- n(*_z)  
- $N(*a_2\cdots a_n)$  
+The count of N-gram $a_1\cdots a_n$ in the training data.    
+ $N(\*a_2\cdots a_n)$    
 The number of unique N-grams that match a given pattern. ``(*)'' represents a wildcard matching a single word.  
 n1,n[1]  
 The number of unique N-grams with count = 1.  
