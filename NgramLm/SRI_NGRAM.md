@@ -6,20 +6,21 @@ $$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \
 NAME  
 *ngram-discount - notes on the N-gram smoothing implementations in SRILM*  
 **NOTATION**  
- $a_1\cdots a_n$  
+* $a_1\cdots a_n$  
 An N-gram where $a$ is the first word, $a_n$ is the last word.  
- $P(a_n|a_1\cdots a_{n-1})$  
+* $P(a_n|a_1\cdots a_{n-1})$  
 The estimated conditional probability of the nth word $a_n$ given the first n-1 words ( $a_1\cdots a_{n-1}$ ) of an N-gram.  
- $a_1\cdots a_{n-1}$  
+* $a_1\cdots a_{n-1}$  
 The n-1 word prefix of the N-gram $a_1\cdots a_n$ .  
- $a_2\cdots a_{n}$
+* $a_2\cdots a_{n}$  
 The n-1 word suffix of the N-gram $a_1\cdots a_n$ .  
- $C(a_1\cdots a_{n-1})$  
+* $C(a_1\cdots a_{n-1})$  
 The count of N-gram $a_1\cdots a_n$ in the training data.    
- $N(\*a_2\cdots a_n)$    
+* $N(\*a_2\cdots a_n)$    
 The number of unique N-grams that match a given pattern. ``(*)'' represents a wildcard matching a single word.  
-n1,n[1]  
+* n1,n[1]  
 The number of unique N-grams with count = 1.  
+
 DESCRIPTION  
 N-gram models try to estimate the probability of a word z in the context of the previous n-1 words (a_), i.e., Pr(z|a_).
 We will denote this conditional probability using p(a_z) for convenience. 
