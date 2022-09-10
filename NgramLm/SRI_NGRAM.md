@@ -22,26 +22,26 @@ The number of unique N-grams that match a given pattern. ``(*)'' represents a wi
 The number of unique N-grams with count = 1.  
 
 DESCRIPTION  
-N-gram models try to estimate the probability of a word z in the context of the previous n-1 words (a_), i.e., Pr(z|a_).
-We will denote this conditional probability using p(a_z) for convenience. 
-One way to estimate p(a_z) is to look at the number of times word z has followed the previous n-1 words (a_):
+N-gram models try to estimate the probability of a word $a_n$ in the context of the previous n-1 words ( $a_1\cdots a_{n-1}$ ), i.e., $Pr(a_n|a_1\cdots a_{n-1})$ .   
+We will denote this conditional probability using $p(a_n|a_1\cdots a_{n-1})$ for convenience.   
+One way to estimate $p(a_n|a_1\cdots a_{n-1})$ is to look at the number of times word $a_n$ has followed the previous n-1 words ( $a_1\cdots a_{n-1}$ ):   
+  
+(1)	$p(a_n|a_1\cdots a_{n-1}) = \frac{c(a_1\cdots a_{n})} {c(a_1\cdots a_{n-1})}$   
 
-(1)	p(a_z) = c(a_z)/c(a_)
+This is known as the maximum likelihood (ML) estimate.    
+Unfortunately it does not work very well because it assigns zero probability to N-grams that have not been observed in the training data.    
+To avoid the zero probabilities, we take some probability mass from the observed N-grams and distribute it to unobserved N-grams.   
+Such redistribution is known as smoothing or discounting.   
+Most existing smoothing algorithms can be described by the following equation:   
 
-This is known as the maximum likelihood (ML) estimate. 
-Unfortunately it does not work very well because it assigns zero probability to N-grams that have not been observed in the training data. 
-To avoid the zero probabilities, we take some probability mass from the observed N-grams and distribute it to unobserved N-grams. 
-Such redistribution is known as smoothing or discounting.
-Most existing smoothing algorithms can be described by the following equation:
+(2)	$p(a_n|a_1\cdots a_{n-1})$ = ( $c(a_1\cdots a_{n}) > 0$ ) ? $f(a_1\cdots a_{n})$ : $bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n})$   
 
-(2)	p(a_z) = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)
-
-If the N-gram a_z has been observed in the training data, we use the distribution f(a_z). 
-Typically f(a_z) is discounted to be less than the ML estimate so we have some leftover probability for the z words unseen in the context (a_). 
-Different algorithms mainly differ on how they discount the ML estimate to get f(a_z).
-If the N-gram a_z has not been observed in the training data, we use the lower order distribution p(_z).
-If the context has never been observed (c(a_) = 0), we can use the lower order distribution directly (bow(a_) = 1).
-Otherwise we need to compute a backoff weight (bow) to make sure probabilities are normalized: Sum_z p(a_z) = 1
+If the N-gram $a_1\cdots a_{n}$ has been observed in the training data, we use the distribution $f(a_1\cdots a_{n})$.    
+Typically $f(a_1\cdots a_{n})$  is discounted to be less than the ML estimate so we have some leftover probability for the z words unseen in the context ( $a_1\cdots a_{n-1}$ ).    
+Different algorithms mainly differ on how they discount the ML estimate to get $f(a_1\cdots a_{n})$.   
+If the N-gram $a_1\cdots a_{n}$ has not been observed in the training data, we use the lower order distribution p(a_2\cdots a_{n})$ .   
+If the context has never been observed ( $c(a_1\cdots a_{n-1}) = 0$ ), we can use the lower order distribution directly ($bow(a_1\cdots a_{n-1}) = 1$).   
+Otherwise we need to compute a backoff weight (bow) to make sure probabilities are normalized: $\sum_{\substack{a_n }}p(a_n|a_1\cdots a_{n-1}) = 1$   
 
 Let Z be the set of all words in the vocabulary, Z0 be the set of all words with c(a_z) = 0, and Z1 be the set of all words with c(a_z) > 0. 
 Given f(a_z), bow(a_) can be determined as follows:
