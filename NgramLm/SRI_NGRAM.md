@@ -1,7 +1,3 @@
-
-https://docs.github.com/cn/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions  
-**The Cauchy-Schwarz Inequality**
-$$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)$$
 # **ngram-discount**  
 NAME  
 *ngram-discount - notes on the N-gram smoothing implementations in SRILM*  
@@ -39,15 +35,17 @@ Most existing smoothing algorithms can be described by the following equation:
 If the N-gram $a_1\cdots a_{n}$ has been observed in the training data, we use the distribution $f(a_1\cdots a_{n})$.    
 Typically $f(a_1\cdots a_{n})$  is discounted to be less than the ML estimate so we have some leftover probability for the z words unseen in the context ( $a_1\cdots a_{n-1}$ ).    
 Different algorithms mainly differ on how they discount the ML estimate to get $f(a_1\cdots a_{n})$.   
-If the N-gram $a_1\cdots a_{n}$ has not been observed in the training data, we use the lower order distribution p(a_2\cdots a_{n})$ .   
-If the context has never been observed ( $c(a_1\cdots a_{n-1}) = 0$ ), we can use the lower order distribution directly ($bow(a_1\cdots a_{n-1}) = 1$).   
+If the N-gram $a_1\cdots a_{n}$ has not been observed in the training data, we use the lower order distribution $p(a_2\cdots a_{n})$ .   
+If the context has never been observed ( $c(a_1\cdots a_{n-1}) = 0$ ), we can use the lower order distribution directly ( $bow(a_1\cdots a_{n-1}) = 1$ ).   
 Otherwise we need to compute a backoff weight (bow) to make sure probabilities are normalized: $\sum_{\substack{a_n }}p(a_n|a_1\cdots a_{n-1}) = 1$   
 
-Let Z be the set of all words in the vocabulary, Z0 be the set of all words with c(a_z) = 0, and Z1 be the set of all words with c(a_z) > 0. 
-Given f(a_z), bow(a_) can be determined as follows:
-
-(3)	Sum_Z  p(a_z) = 1
-	Sum_Z1 f(a_z) + Sum_Z0 bow(a_) p(_z) = 1
+Let $Z$ be the set of all words in the vocabulary, $Z_0$ be the set of all words with  $c(a_1\cdots a_{n}) = 0$ , and $Z_1$ be the set of all words with  $c(a_1\cdots a_{n}) > 0$ .  
+Given $f(a_1\cdots a_{n})$ f(a_z), $bow(a_1\cdots a_{n-1})$ bow(a_) can be determined as follows:     
+(3)	$\sum_{Z}p(a_n|a_1\cdots a_{n-1}) = 1$ Sum_Z  p(a_z) = 1   
+	$\sum_{Z_1}p(a_n|a_1\cdots a_{n-1}) + \sum_{Z_0}bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n}) = 1$ Sum_Z1 f(a_z) + Sum_Z0 bow(a_) p(_z) = 1     
+	$bow(a_1\cdots a_{n-1}) = \frac(1-$\sum_{Z_1}f(a_n|a_1\cdots a_{n-1}) sum_{Z_0}p(a_2\cdots a_{n})$  
+	                        = $\frac(1-$\sum_{Z_1}f(a_n|a_1\cdots a_{n-1}) (1-sum_{Z_1}p(a_2\cdots a_{n}))$  
+				= $\frac(1-$\sum_{Z_1}f(a_n|a_1\cdots a_{n-1}) (1-sum_{Z_1}f(a_2\cdots a_{n}))$  
 	bow(a_) = (1 - Sum_Z1 f(a_z)) / Sum_Z0 p(_z)
 	        = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 p(_z))
 	        = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z))
