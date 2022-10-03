@@ -40,12 +40,12 @@ If the context has never been observed ( $c(a_1\cdots a_{n-1}) = 0$ ), we can us
 Otherwise we need to compute a backoff weight (bow) to make sure probabilities are normalized: $\sum_{\substack{a_n }}p(a_n|a_1\cdots a_{n-1}) = 1$   
 
 Let $Z$ be the set of all words in the vocabulary, $Z_0$ be the set of all words with  $c(a_1\cdots a_{n}) = 0$ , and $Z_1$ be the set of all words with  $c(a_1\cdots a_{n}) > 0$ .  
-Given $f(a_1\cdots a_{n})$ f(a_z), $bow(a_1\cdots a_{n-1})$ bow(a_) can be determined as follows:     
-(3)	$\sum_{Z}p(a_n|a_1\cdots a_{n-1}) = 1$ Sum_Z  p(a_z) = 1   
-	$\sum_{Z_1}p(a_n|a_1\cdots a_{n-1}) + \sum_{Z_0}bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n}) = 1$ Sum_Z1 f(a_z) + Sum_Z0 bow(a_) p(_z) = 1     
-	$bow(a_1\cdots a_{n-1}) = \frac(1-$\sum_{Z_1}f(a_n|a_1\cdots a_{n-1}) sum_{Z_0}p(a_2\cdots a_{n})$  
-	                        = $\frac(1-$\sum_{Z_1}f(a_n|a_1\cdots a_{n-1}) (1-sum_{Z_1}p(a_2\cdots a_{n}))$  
-				= $\frac(1-$\sum_{Z_1}f(a_n|a_1\cdots a_{n-1}) (1-sum_{Z_1}f(a_2\cdots a_{n}))$  
+Given $f(a_1\cdots a_{n})$ , $bow(a_1\cdots a_{n-1})$ can be determined as follows:     
+(3)&nbsp; $\sum_{Z}p(a_n|a_1\cdots a_{n-1}) = 1$    
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\sum_{Z_1}p(a_n|a_1\cdots a_{n-1}) + \sum_{Z_0}bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n}) = 1$   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1}) = \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {\sum_{Z_0}p(a_2\cdots a_{n})}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}p(a_2\cdots a_{n})}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $=  \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$  
 	bow(a_) = (1 - Sum_Z1 f(a_z)) / Sum_Z0 p(_z)
 	        = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 p(_z))
 	        = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z))
