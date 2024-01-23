@@ -22,7 +22,7 @@ N-gram models try to estimate the probability of a word $a_n$ in the context of 
 We will denote this conditional probability using $p(a_n|a_1\cdots a_{n-1})$ for convenience.   
 One way to estimate $p(a_n|a_1\cdots a_{n-1})$ is to look at the number of times word $a_n$ has followed the previous n-1 words ( $a_1\cdots a_{n-1}$ ):   
   
-(1)	$p(a_n|a_1\cdots a_{n-1}) = \frac{c(a_1\cdots a_{n})} {c(a_1\cdots a_{n-1})}$   
+(1)&nbsp;&nbsp;	$p(a_n|a_1\cdots a_{n-1}) = \frac{c(a_1\cdots a_{n})} {c(a_1\cdots a_{n-1})}$   
 
 This is known as the maximum likelihood (ML) estimate.    
 Unfortunately it does not work very well because it assigns zero probability to N-grams that have not been observed in the training data.    
@@ -30,7 +30,7 @@ To avoid the zero probabilities, we take some probability mass from the observed
 Such redistribution is known as smoothing or discounting.   
 Most existing smoothing algorithms can be described by the following equation:   
 
-(2)	$p(a_n|a_1\cdots a_{n-1})$ = ( $c(a_1\cdots a_{n}) > 0$ ) ? $f(a_1\cdots a_{n})$ : $bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n})$   
+(2)&nbsp;&nbsp;	$p(a_n|a_1\cdots a_{n-1})$ = ( $c(a_1\cdots a_{n}) > 0$ ) ? $f(a_1\cdots a_{n})$ : $bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n})$   
 
 If the N-gram $a_1\cdots a_{n}$ has been observed in the training data, we use the distribution $f(a_1\cdots a_{n})$.    
 Typically $f(a_1\cdots a_{n})$  is discounted to be less than the ML estimate so we have some leftover probability for the z words unseen in the context ( $a_1\cdots a_{n-1}$ ).    
@@ -41,7 +41,7 @@ Otherwise we need to compute a backoff weight (bow) to make sure probabilities a
 
 Let $Z$ be the set of all words in the vocabulary, $Z_0$ be the set of all words with  $c(a_1\cdots a_{n}) = 0$ , and $Z_1$ be the set of all words with  $c(a_1\cdots a_{n}) > 0$ .  
 Given $f(a_1\cdots a_{n})$ , $bow(a_1\cdots a_{n-1})$ can be determined as follows:     
-(3)&nbsp; $\sum_{Z}p(a_n|a_1\cdots a_{n-1}) = 1$  
+(3)&nbsp;&nbsp; $\sum_{Z}p(a_n|a_1\cdots a_{n-1}) = 1$  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\sum_{Z_1}p(a_n|a_1\cdots a_{n-1}) + \sum_{Z_0}bow(a_1\cdots a_{n-1}) \times p(a_2\cdots a_{n}) = 1$   
 
@@ -51,86 +51,107 @@ Given $f(a_1\cdots a_{n})$ , $bow(a_1\cdots a_{n-1})$ can be determined as follo
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $=  \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$  
 
-	bow(a_) = (1 - Sum_Z1 f(a_z)) / Sum_Z0 p(_z)
-	        = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 p(_z))
-	        = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z))
 
-Smoothing is generally done in one of two ways. The backoff models compute p(a_z) based on the N-gram counts c(a_z) when c(a_z) > 0, 
-and only consider lower order counts c(_z) when c(a_z) = 0. 
-Interpolated models take lower order counts into account when c(a_z) > 0 as well. A common way to express an interpolated model is:
+Smoothing is generally done in one of two ways. The backoff models compute $p(a_1\cdots a_{n})$ based on the N-gram counts $c(a_1\cdots a_{n})$ when $c(a_1\cdots a_{n}) > 0$, 
+and only consider lower order counts $c(a_2\cdots a_{n})$ when $c(a_1\cdots a_{n}) = 0$.  
+Interpolated models take lower order counts into account when $c(a_1\cdots a_{n}) > 0$  as well. A common way to express an interpolated model is:  
 
-(4)	p(a_z) = g(a_z) + bow(a_) p(_z)
+(4)&nbsp;&nbsp; $p(a_1\cdots a_{n}) = g(a_1\cdots a_{n}) + bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$  
 
-Where g(a_z) = 0 when c(a_z) = 0 and it is discounted to be less than the ML estimate when c(a_z) > 0 to reserve some probability mass for the unseen z words. 
-Given g(a_z), bow(a_) can be determined as follows:
+Where  $g(a_1\cdots a_{n})= 0$ when $c(a_1\cdots a_{n}) = 0$ and it is discounted to be less than the ML estimate when  $c(a_1\cdots a_{n}) > 0$ to reserve some probability mass for the unseen $a_{n}$ words.  
+Given $g(a_1\cdots a_{n})$ , $bow(a_1\cdots a_{n-1})$ can be determined as follows:  
 
-(5)	Sum_Z  p(a_z) = 1
-	Sum_Z1 g(a_z) + Sum_Z bow(a_) p(_z) = 1
-	bow(a_) = 1 - Sum_Z1 g(a_z)
+(5)&nbsp;&nbsp; $\sum_{Z_1}p(a_n|a_1\cdots a_{n-1}) = 1$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\sum_{Z_1}g(a_n|a_1\cdots a_{n-1}) + \sum_{Z}bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n}) = 1$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1}) = 1 - \sum_{Z_1}g(a_n|a_1\cdots a_{n-1})$  
 
-An interpolated model can also be expressed in the form of equation (2), which is the way it is represented in the ARPA format model files in SRILM:
+An interpolated model can also be expressed in the form of equation (2), which is the way it is represented in the ARPA format model files in SRILM:  
 
-(6)	f(a_z) = g(a_z) + bow(a_) p(_z)
-	p(a_z) = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)
+(6)&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) = bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n}) $  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) > 0) ? f(a_n|a_1\cdots a_{n-1}) : bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$  
 
 Most algorithms in SRILM have both backoff and interpolated versions. Empirically, interpolated algorithms usually do better than the backoff ones, 
-and Kneser-Ney does better than others.
+and Kneser-Ney does better than others.  
 
-OPTIONS
-This section describes the formulation of each discounting option in ngram-count(1). 
-After giving the motivation for each discounting method, we will give expressions for f(a_z) and bow(a_) of Equation 2 in terms of the counts. 
-Note that some counts may not be included in the model file because of the -gtmin options; see Warning 4 in the next section.
-Backoff versions are the default but interpolated versions of most models are available using the -interpolate option. 
-In this case we will express g(a_z) and bow(a_) of Equation 4 in terms of the counts as well. 
-Note that the ARPA format model files store the interpolated models and the backoff models the same way using f(a_z) and bow(a_); 
-see Warning 3 in the next section. The conversion between backoff and interpolated formulations is given in Equation 6.
-The discounting options may be followed by a digit (1-9) to indicate that only specific N-gram orders be affected. See ngram-count(1) for more details.
+OPTIONS  
+This section describes the formulation of each discounting option in ngram-count(1).   
+After giving the motivation for each discounting method, we will give expressions for $f(a_n|a_1\cdots a_{n-1})$ and $bow(a_1\cdots a_{n-1})$  of Equation 2 in terms of the counts.   
+Note that some counts may not be included in the model file because of the -gtmin options; see Warning 4 in the next section.  
+Backoff versions are the default but interpolated versions of most models are available using the -interpolate option.  
+In this case we will express g(a_z) and bow(a_) of Equation 4 in terms of the counts as well.  
+Note that the ARPA format model files store the interpolated models and the backoff models the same way using  $f(a_n|a_1\cdots a_{n-1})$  and $bow(a_1\cdots a_{n-1})$;  
+see Warning 3 in the next section. The conversion between backoff and interpolated formulations is given in Equation 6.  
+The discounting options may be followed by a digit (1-9) to indicate that only specific N-gram orders be affected. See ngram-count(1) for more details.  
+  
+-cdiscount D  
+Ney's absolute discounting using D as the constant to subtract. D should be between 0 and 1. If $Z1$ is the set of all words $z$ with $c(a_n|a_1\cdots a_{n-1}) > 0$ :  
 
--cdiscount D
-Ney's absolute discounting using D as the constant to subtract. D should be between 0 and 1. If Z1 is the set of all words z with c(a_z) > 0:
+&nbsp;&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) = \frac{c(a_n|a_1\cdots a_{n-1}) - D } {c(a_n-1|a_1\cdots a_{n-2}) }$  
 
-	f(a_z)  = (c(a_z) - D) / c(a_)
-	p(a_z)  = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)    ; Eqn.2
-	bow(a_) = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z)) ; Eqn.3
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) > 0) ? f(a_n|a_1\cdots a_{n-1}) : bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.2 
 
-With the -interpolate option we have:
+&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1})  = \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$ &nbsp;  Eqn.3  
 
-	g(a_z)  = max(0, c(a_z) - D) / c(a_)
-	p(a_z)  = g(a_z) + bow(a_) p(_z)	; Eqn.4
-	bow(a_) = 1 - Sum_Z1 g(a_z)		; Eqn.5
-	        = D n(a_*) / c(a_)
 
-The suggested discount factor is:
 
-	D = n1 / (n1 + 2*n2)
+With the -interpolate option we have:  
 
-where n1 and n2 are the total number of N-grams with exactly one and two counts, respectively. 
-Different discounting constants can be specified for different N-gram orders using options -cdiscount1, -cdiscount2, etc.
+&nbsp;&nbsp;&nbsp; $g(a_n|a_1\cdots a_{n-1}) = \frac{max(0,c(a_n|a_1\cdots a_{n-1}) - D) } {c(a_n-1|a_1\cdots a_{n-2}) }$  
 
--kndiscount and -ukndiscount
-Kneser-Ney discounting. 
-This is similar to absolute discounting in that the discounted probability is computed by subtracting a constant D from the N-gram count. 
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = g(a_n|a_1\cdots a_{n-1}) + bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.4   
+
+&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1})  = 1-\sum_{Z_1}g(a_n|a_1\cdots a_{n-1})$ &nbsp;  Eqn.5 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= \frac{D* n(*|a_1\cdots a_{n-1})} {c(a_n-1|a_1\cdots a_{n-2})}$  
+
+
+The suggested discount factor is:  
+&nbsp;&nbsp;&nbsp; $D = \frac{n_1} {(n_1 + 2*n_2)}$  
+
+
+where $n_1$ and $n_2$ are the total number of N-grams with exactly one and two counts, respectively.   
+Different discounting constants can be specified for different N-gram orders using options -cdiscount1, -cdiscount2, etc.  
+
+-kndiscount and -ukndiscount  
+Kneser-Ney discounting.   
+This is similar to absolute discounting in that the discounted probability is computed by subtracting a constant D from the N-gram count.   
 The options -kndiscount and -ukndiscount differ as to how this constant is computed.
-The main idea of Kneser-Ney is to use a modified probability estimate for lower order N-grams used for backoff. 
-Specifically, 
-the modified probability for a lower order N-gram is taken to be proportional to the number of unique words that precede it in the training data. 
-With discounting and normalization we get:
+The main idea of Kneser-Ney is to use a modified probability estimate for lower order N-grams used for backoff.  
+Specifically,   
+the modified probability for a lower order N-gram is taken to be proportional to the number of unique words that precede it in the training data.   
+With discounting and normalization we get:  
+&nbsp;&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) =  \frac{c(a_n|a_1\cdots a_{n-1}) - D_0 } {c(a_n-1|a_1\cdots a_{n-2}) }$ ;; for highest order N-grams  
+&nbsp;&nbsp;&nbsp; $f(a_n|a_2\cdots a_{n-1}) =  \frac{c(a_n|*\cdots a_{n-1}) - D_1 } {n(\*|\*\cdots a_{n-2}) }$	;; for lower order N-grams  
+
 
 	f(a_z) = (c(a_z) - D0) / c(a_) 	;; for highest order N-grams
 	f(_z)  = (n(*_z) - D1) / n(*_*)	;; for lower order N-grams
 
-where the n(*_z) notation represents the number of unique N-grams that match a given pattern with (*) used as a wildcard for a single word. 
+where the $n(a_n|*\cdots a_{n-1}) notation represents the number of unique N-grams that match a given pattern with (*) used as a wildcard for a single word. 
 D0 and D1 represent two different discounting constants, as each N-gram order uses a different discounting constant. 
 The resulting conditional probability and the backoff weight is calculated as given in equations (2) and (3):
 
-	p(a_z)  = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)     ; Eqn.2
-	bow(a_) = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z))  ; Eqn.3
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) > 0) ? f(a_n|a_1\cdots a_{n-1}) : bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.2   
+&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1})  = \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$ &nbsp;  Eqn.3  
+	p(a_z)  = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)     ; Eqn.2  
+	bow(a_) = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z))  ; Eqn.3  
 
-The option -interpolate is used to create the interpolated versions of -kndiscount and -ukndiscount. In this case we have:
+The option -interpolate is used to create the interpolated versions of -kndiscount and -ukndiscount. In this case we have:  
 
-	p(a_z) = g(a_z) + bow(a_) p(_z)  ; Eqn.4
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = g(a_n|a_1\cdots a_{n-1}) + bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.4   
 
-Let Z1 be the set {z: c(a_z) > 0}. For highest order N-grams we have:
+	p(a_z) = g(a_z) + bow(a_) p(_z)  ; Eqn.4  
+
+Let $Z_1$ be the set ${z: c(a_n|a_1\cdots a_{n-1}) > 0}$  {z: c(a_z) > 0}. For highest order N-grams we have:  
+
+&nbsp;&nbsp;&nbsp; $g(a_n|a_1\cdots a_{n-1}) = \frac{max(0,c(a_n|a_1\cdots a_{n-1}) - D) } {c(a_n-1|a_1\cdots a_{n-2}) }$  
+
+&nbsp;&nbsp;&nbsp; $bow(a_{n-1}|a_1\cdots a_{n-2})  = 1 - \sum_{Z_1}g(a_n|a_1\cdots a_{n-1})$ &nbsp;  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= 1 - \sum_{Z_1} \frac{c(a_n|a_1\cdots a_{n-1})} {c(a_{n-1}|a_1\cdots a_{n-2})} + \sum_{Z_1} \frac{D} {c(a_{n-1}|a_1\cdots a_{n-2})}$   
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= D * \frac{n(*|a_1\cdots a_{n-1}))} d{c(a_{n-1}|a_1\cdots a_{n-2})}$  
+
 
 	g(a_z)  = max(0, c(a_z) - D) / c(a_)
 	bow(a_) = 1 - Sum_Z1 g(a_z)
