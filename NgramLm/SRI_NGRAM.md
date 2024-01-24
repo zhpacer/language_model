@@ -150,7 +150,7 @@ Let $Z_1$ be the set ${z: c(a_n|a_1\cdots a_{n-1}) > 0}$  {z: c(a_z) > 0}. For h
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= 1 - \sum_{Z_1} \frac{c(a_n|a_1\cdots a_{n-1})} {c(a_{n-1}|a_1\cdots a_{n-2})} + \sum_{Z_1} \frac{D} {c(a_{n-1}|a_1\cdots a_{n-2})}$   
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= D * \frac{n(*|a_1\cdots a_{n-1}))} d{c(a_{n-1}|a_1\cdots a_{n-2})}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= D * \frac{n(*|a_1\cdots a_{n-1}))} {c(a_{n-1}|a_1\cdots a_{n-2})}$  
 
 
 	g(a_z)  = max(0, c(a_z) - D) / c(a_)
@@ -158,31 +158,49 @@ Let $Z_1$ be the set ${z: c(a_n|a_1\cdots a_{n-1}) > 0}$  {z: c(a_z) > 0}. For h
 	        = 1 - Sum_Z1 c(a_z) / c(a_) + Sum_Z1 D / c(a_)
 	        = D n(a_*) / c(a_)
 
-Let Z2 be the set {z: n(*_z) > 0}. For lower order N-grams we have:
+Let $Z_2$ be the set ${z: c(a_n|\*\cdots a_{n-1}) > 0}$. For lower order N-grams we have:
+
+&nbsp;&nbsp;&nbsp; $g(a_n|\*\cdots a_{n-1}) = \frac{max(0,n(a_n|\*\cdots a_{n-1}) - D) } {n(\*|\*a_2\cdots a_{n-2}) }$  
+
+&nbsp;&nbsp;&nbsp; $bow(a_{n-1}|a_2\cdots a_{n-3})  = 1 - \sum_{Z_2}g(a_n|\*\cdots a_{n-1})$ &nbsp;  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= 1 - \sum_{Z_2} \frac{n(a_n|\*\cdots a_{n-1})} {n(\*|\*a_2\cdots a_{n-2})} + \sum_{Z_2} \frac{D} {n(\*|\*a_2\cdots a_{n-2})}$   
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $= D * \frac{n(\*|a_1\cdots a_{n-2})} {n(\*|\*a_2\cdots a_{n-2})}$  
 
 	g(_z)  = max(0, n(*_z) - D) / n(*_*)
 	bow(_) = 1 - Sum_Z2 g(_z)
 	       = 1 - Sum_Z2 n(*_z) / n(*_*) + Sum_Z2 D / n(*_*)
 	       = D n(_*) / n(*_*)
 
-The original Kneser-Ney discounting (-ukndiscount) uses one discounting constant for each N-gram order. These constants are estimated as
+The original Kneser-Ney discounting (-ukndiscount) uses one discounting constant for each N-gram order. These constants are estimated as  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $D = \frac{n_1} {n_1 + 2 * n_2}$  
 
 	D = n1 / (n1 + 2*n2)
 
-where n1 and n2 are the total number of N-grams with exactly one and two counts, respectively.
-Chen and Goodman's modified Kneser-Ney discounting (-kndiscount) uses three discounting constants for each N-gram order, 
-one for one-count N-grams, one for two-count N-grams, and one for three-plus-count N-grams:
+where n1 and n2 are the total number of N-grams with exactly one and two counts, respectively.    
+Chen and Goodman's modified Kneser-Ney discounting (-kndiscount) uses three discounting constants for each N-gram order,     
+one for one-count N-grams, one for two-count N-grams, and one for three-plus-count N-grams:    
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $Y = \frac{n_1} {n_1 + 2 * n_2}$  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $D_1 = 1- 2\*Y\*\frac{n_2} {n_1}$  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $D_2 = 2- 3\*Y\*\frac{n_3} {n_2}$   
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $D_3+ = 3- 4\*Y\*\frac{n_4} {n_3}$   
 
 	Y   = n1/(n1+2*n2)
 	D1  = 1 - 2Y(n2/n1)
 	D2  = 2 - 3Y(n3/n2)
 	D3+ = 3 - 4Y(n4/n3)
 
-Warning:
-SRILM implements Kneser-Ney discounting by actually modifying the counts of the lower order N-grams.
-Thus, when the -write option is used to write the counts with -kndiscount or -ukndiscount, 
-only the highest order N-grams and N-grams that start with <s> will have their regular counts c(a_z), 
-all others will have the modified counts n(*_z) instead. See Warning 2 in the next section.
+Warning:  
+SRILM implements Kneser-Ney discounting by actually modifying the counts of the lower order N-grams.  
+Thus, when the -write option is used to write the counts with -kndiscount or -ukndiscount,   
+only the highest order N-grams and N-grams that start with \<s\> will have their regular counts c(a_z),   
+all others will have the modified counts n(*_z) instead. See Warning 2 in the next section.  
 
 -wbdiscount
 Witten-Bell discounting. 
