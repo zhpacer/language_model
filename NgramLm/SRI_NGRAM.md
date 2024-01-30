@@ -202,28 +202,39 @@ Thus, when the -write option is used to write the counts with -kndiscount or -uk
 only the highest order N-grams and N-grams that start with \<s\> will have their regular counts c(a_z),   
 all others will have the modified counts n(*_z) instead. See Warning 2 in the next section.  
 
--wbdiscount
-Witten-Bell discounting. 
-The intuition is that the weight given to the lower order model should be proportional to the probability of observing an unseen word in the current context (a_). 
-Witten-Bell computes this weight as:
+-wbdiscount  
+Witten-Bell discounting.   
+The intuition is that the weight given to the lower order model should be proportional to the probability of observing an unseen word in the current context $(a_{n-1}|a_1\cdots a_{n-2})$  .   
+Witten-Bell computes this weight as:  
+
+&nbsp;&nbsp;&nbsp; $bow(a_{n-1}|a_1\cdots a_{n-2})  = \frac{n(\*|a_1\cdots a_{n-2})} {(n(\*|a_1\cdots a_{n-2}) + c(a_{n-1}|a_1\cdots a_{n-2}))}$ &nbsp;  
 
 	bow(a_) = n(a_*) / (n(a_*) + c(a_))
 
-Here n(a_*) represents the number of unique words following the context (a_) in the training data. 
-Witten-Bell is originally an interpolated discounting method. So with the -interpolate option we get:
-
+Here $n(\*|a_1\cdots a_{n-2})$ n(a_*)$ represents the number of unique words following the context $(a_{n-1}|a_1\cdots a_{n-2})$  in the training data.   
+Witten-Bell is originally an interpolated discounting method. So with the -interpolate option we get:  
+&nbsp;&nbsp;&nbsp; $g(a_n|a_1\cdots a_{n-1}) = \frac{c(a_n|a_1\cdots a_{n-1})} {n(\*|a_1\cdots a_{n-2})+ (a_{n-1}|a_1\cdots a_{n-2})}$  
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = g(a_n|a_1\cdots a_{n-1}) + bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.4   
 	g(a_z) = c(a_z) / (n(a_*) + c(a_))
 	p(a_z) = g(a_z) + bow(a_) p(_z)    ; Eqn.4
 
-Without the -interpolate option we have the backoff version which is implemented by taking f(a_z) to be the same as the interpolated g(a_z).
-
+Without the -interpolate option we have the backoff version which is implemented by taking f(a_z) to be the same as the interpolated g(a_z).  
+&nbsp;&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) = \frac{c(a_n|a_1\cdots a_{n-1})} {n(\*|a_1\cdots a_{n-2})+(a_{n-1}|a_1\cdots a_{n-2})}$ &nbsp;   
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) > 0) ? f(a_n|a_1\cdots a_{n-1}) : bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.2   
+&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1})  = \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$ &nbsp;  Eqn.3  
 	f(a_z)  = c(a_z) / (n(a_*) + c(a_))
 	p(a_z)  = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)    ; Eqn.2
 	bow(a_) = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z)) ; Eqn.3
 
--ndiscount
-Ristad's natural discounting law. See Ristad's technical report "A natural law of succession" for a justification of the discounting factor. 
-The -interpolate option has no effect, only a backoff version has been implemented.
+-ndiscount  
+Ristad's natural discounting law. See Ristad's technical report "A natural law of succession" for a justification of the discounting factor.   
+The -interpolate option has no effect, only a backoff version has been implemented.  
+
+&nbsp;&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) = \frac{c(a_n|a_1\cdots a_{n-1})} {c(a_{n-1}|a_1\cdots a_{n-2})} \* (\frac{c(a_n|a_1\cdots a_{n-1}) \* (c(a_n|a_1\cdots a_{n-1}) + 1) + n(\*|a_1\cdots a_{n-2}) \* (1-n(\*|a_1\cdots a_{n-2}))} {c(a_{n-1}|a_1\cdots a_{n-2})^{2} + c(a_{n-1}|a_1\cdots a_{n-2}) + 2\*n(\*|a_1\cdots a_{n-2})})$ &nbsp; 
+
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) > 0) ? f(a_n|a_1\cdots a_{n-1}) : bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.2  
+
+&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1})  = \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$ &nbsp;  Eqn.3  
 
 	          c(a_z)  c(a_) (c(a_) + 1) + n(a_*) (1 - n(a_*))
 	f(a_z)  = ------  ---------------------------------------
@@ -232,35 +243,45 @@ The -interpolate option has no effect, only a backoff version has been implement
 	p(a_z)  = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)    ; Eqn.2
 	bow(a_) = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z)) ; Eqn.3
 
--count-lm
-Estimate a count-based interpolated LM using Jelinek-Mercer smoothing (Chen & Goodman, 1998), also known as "deleted interpolation." 
-Note that this does not produce a backoff model; instead of count-LM parameter file in the format described in ngram(1) needs to be specified using -init-lm, 
-and a reestimated file in the same format is produced. In the process,
-the mixture weights that interpolate the ML estimates at all levels of N-grams are estimated using an expectation-maximization (EM) algorithm. 
-The options -em-iters and -em-delta control termination of the EM algorithm. 
-Note that the N-gram counts used to estimate the maximum-likelihood estimates are specified in the -init-lm model file. 
-The counts specified with -read or -text are used only to estimate the interpolation weights. \" ???What does this all mean in terms of the math???
+-count-lm  
+Estimate a count-based interpolated LM using Jelinek-Mercer smoothing (Chen & Goodman, 1998), also known as "deleted interpolation."   
+Note that this does not produce a backoff model; instead of count-LM parameter file in the format described in ngram(1) needs to be specified using -init-lm,   
+and a reestimated file in the same format is produced. In the process,  
+the mixture weights that interpolate the ML estimates at all levels of N-grams are estimated using an expectation-maximization (EM) algorithm.   
+The options -em-iters and -em-delta control termination of the EM algorithm.   
+Note that the N-gram counts used to estimate the maximum-likelihood estimates are specified in the -init-lm model file.   
+The counts specified with -read or -text are used only to estimate the interpolation weights. \" ???What does this all mean in terms of the math???  
 
--addsmooth D
-Smooth by adding D to each N-gram count. This is usually a poor smoothing method, included mainly for instructional purposes.
-
+-addsmooth D  
+Smooth by adding D to each N-gram count. This is usually a poor smoothing method, included mainly for instructional purposes.  
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = \frac{c(a_n|a_1\cdots a_{n-1}) + D} {c(a_{n-1}|a_1\cdots a_{n-2}) + D\*n(\*)}$  
 	p(a_z) = (c(a_z) + D) / (c(a_) + D n(*))
 
-default
-If the user does not specify any discounting options, ngram-count uses Good-Turing discounting (aka Katz smoothing) by default. 
-The Good-Turing estimate states that for any N-gram that occurs r times, we should pretend that it occurs r' times where
+default  
+If the user does not specify any discounting options, ngram-count uses Good-Turing discounting (aka Katz smoothing) by default.   
+The Good-Turing estimate states that for any N-gram that occurs r times, we should pretend that it occurs r' times where  
+
+&nbsp;&nbsp;&nbsp; $r^{'} = \frac{(r+1) * n[r+1]} {n[r]}$  
 
 	r' = (r+1) n[r+1]/n[r]
 
-Here n[r] is the number of N-grams that occur exactly r times in the training data.
-Large counts are taken to be reliable, thus they are not subject to any discounting. 
-By default unigram counts larger than 1 and other N-gram counts larger than 7 are taken to be reliable and maximum likelihood estimates are used.
-These limits can be modified using the -gtnmax options.
+Here $n[r]$ is the number of N-grams that occur exactly r times in the training data.  
+Large counts are taken to be reliable, thus they are not subject to any discounting.   
+By default unigram counts larger than 1 and other N-gram counts larger than 7 are taken to be reliable and maximum likelihood estimates are used.  
+These limits can be modified using the -gtnmax options.  
 
+&nbsp;&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) = \frac{c(a_n|a_1\cdots a_{n-1})} {n(\*|a_1\cdots a_{n-2})+(a_{n-1}|a_1\cdots a_{n-2})}\ if\ c(a_n|a_1\cdots a_{n-1})\ >\ gtmax$ &nbsp;  
 	f(a_z) = (c(a_z) / c(a_))  if c(a_z) > gtmax
 
 The lower counts are discounted proportional to the Good-Turing estimate with a small correction A to account for the high-count N-grams not being discounted.
-If 1 <= c(a_z) <= gtmax:
+If $1 <= c(a_n|a_1\cdots a_{n-1}) <= gtmax$:  
+
+&nbsp;&nbsp;&nbsp; $A=(gtmax\ +\ 1) \* \frac{n[gtmax + 1]}  {n[1]}$  
+
+&nbsp;&nbsp;&nbsp; $c^{'}(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) + 1) \* \frac{n[c(a_n|a_1\cdots a_{n-1}) + 1]} {n[1]}$  
+
+&nbsp;&nbsp;&nbsp; $f(a_n|a_1\cdots a_{n-1}) = (\frac{c(a_n|a_1\cdots a_{n-1})} {c(a_{n-1}|a_1\cdots a_{n-2})}) \* (\frac{(\frac{c^{'}(a_n|a_1\cdots a_{n-1})} {c(a_n|a_1\cdots a_{n-1})})-A} {(1-A)})$  
+
 
                    n[gtmax + 1]
   A = (gtmax + 1) --------------
@@ -274,59 +295,62 @@ If 1 <= c(a_z) <= gtmax:
   f(a_z) = --------  ----------------------
              c(a_)         (1 - A)
 
-The -interpolate option has no effect in this case, only a backoff version has been implemented, thus:
+The -interpolate option has no effect in this case, only a backoff version has been implemented, thus:  
+&nbsp;&nbsp;&nbsp; $p(a_n|a_1\cdots a_{n-1}) = (c(a_n|a_1\cdots a_{n-1}) > 0) ? f(a_n|a_1\cdots a_{n-1}) : bow(a_1\cdots a_{n-1}) * p(a_2\cdots a_{n})$ &nbsp;  Eqn.2  
+
+&nbsp;&nbsp;&nbsp; $bow(a_1\cdots a_{n-1})  = \frac{1-\sum_{Z_1}f(a_n|a_1\cdots a_{n-1})} {1-\sum_{Z_1}f(a_2\cdots a_{n})}$ &nbsp;  Eqn.3  
 
 	p(a_z)  = (c(a_z) > 0) ? f(a_z) : bow(a_) p(_z)    ; Eqn.2
 	bow(a_) = (1 - Sum_Z1 f(a_z)) / (1 - Sum_Z1 f(_z)) ; Eqn.3
 
-FILE FORMATS
-SRILM can generate simple N-gram counts from plain text files with the following command:
-	ngram-count -order N -text file.txt -write file.cnt
-The -order option determines the maximum length of the N-grams. 
-The file file.txt should contain one sentence per line with tokens separated by whitespace. 
-The output file.cnt contains the N-gram tokens followed by a tab and a count on each line:
-
+FILE FORMATS  
+SRILM can generate simple N-gram counts from plain text files with the following command:  
+	ngram-count -order N -text file.txt -write file.cnt  
+The -order option determines the maximum length of the N-grams.   
+The file file.txt should contain one sentence per line with tokens separated by whitespace.   
+The output file.cnt contains the N-gram tokens followed by a tab and a count on each line:  
+&nbsp;&nbsp;&nbsp; $a_n|a_1\cdots a_{n-1}\ &lttab&gt\ c(a_n|a_1\cdots a_{n-1} )$  
 	a_z <tab> c(a_z)
 
-A couple of warnings:
-Warning 1
-SRILM implicitly assumes an <s> token in the beginning of each line and an </s> token at the end of each line and counts N-grams that start with <s> and end with </s>. 
-You do not need to include these tags in file.txt.
-Warning 2
-When -kndiscount or -ukndiscount options are used, the count file contains modified counts.
-Specifically, all N-grams of the maximum order, and all N-grams that start with <s> have their regular counts c(a_z), 
-but shorter N-grams that do not start with <s> have the number of unique words preceding them n(*a_z) instead. 
-See the description of -kndiscount and -ukndiscount for details.
-For most smoothing methods (except -count-lm) SRILM generates and uses N-gram model files in the ARPA format.
-A typical command to generate a model file would be:
+A couple of warnings:  
+Warning 1  
+SRILM implicitly assumes an \<s\> token in the beginning of each line and an \<\/s\> token at the end of each line and counts N-grams that start with \<\s\> and end with \<\/s\>. 
+You do not need to include these tags in file.txt.  
+Warning 2  
+When -kndiscount or -ukndiscount options are used, the count file contains modified counts.  
+Specifically, all N-grams of the maximum order, and all N-grams that start with \<s\> have their regular counts $c(a_n|a_1\cdots a_{n-1} )$,     
+but shorter N-grams that do not start with \<s\> have the number of unique words preceding them $n(a_n|*a_1\cdots a_{n-1} )$ n(*a_z) instead.   
+See the description of -kndiscount and -ukndiscount for details.  
+For most smoothing methods (except -count-lm) SRILM generates and uses N-gram model files in the ARPA format.  
+A typical command to generate a model file would be:  
 
-	ngram-count -order N -text file.txt -lm file.lm
-The ARPA format output file.lm will contain the following information about an N-gram on each line:
+	ngram-count -order N -text file.txt -lm file.lm  
+The ARPA format output file.lm will contain the following information about an N-gram on each line:  
+&nbsp;&nbsp;&nbsp; $\log_{10}(f(a_n|a_1\cdots a_{n-1}))\ &lttab&gt\ a_n|a_1\cdots a_{n-1}\ &lttab&gt\ log_{10}(bow(a_n|a_1\cdots a_{n-1}))$  
+	log10(f(a_z)) <tab> a_z <tab> log10(bow(a_z))  
 
-	log10(f(a_z)) <tab> a_z <tab> log10(bow(a_z))
-
-Based on Equation 2, the first entry represents the base 10 logarithm of the conditional probability (logprob) for the N-gram a_z. 
-This is followed by the actual words in the N-gram separated by spaces. 
-The last and optional entry is the base-10 logarithm of the backoff weight for (n+1)-grams starting with a_z.
-Warning 3
-Both backoff and interpolated models are represented in the same format.
-This means interpolation is done during model building and represented in the ARPA format with logprob and backoff weight using equation (6).
-Warning 4
-Not all N-grams in the count file necessarily end up in the model file.
-The options -gtmin, -gt1min, ..., -gt9min specify the minimum counts for N-grams to be included in the LM (not only for Good-Turing discounting but for the other methods as well). 
-By default all unigrams and bigrams are included, but for higher order N-grams only those with count >= 2 are included.
-Some exceptions arise, because if one N-gram is included in the model file, all its prefix N-grams have to be included as well. 
-This causes some higher order 1-count N-grams to be included when using KN discounting, which uses modified counts as described in Warning 2.
-Warning 5
-Not all N-grams in the model file have backoff weights.
-The highest order N-grams do not need a backoff weight. 
-For lower order N-grams backoff weights are only recorded for those that appear as the prefix of a longer N-gram included in the model. 
-For other lower order N-grams the backoff weight is implicitly 1 (or 0, in log representation).
-SEE ALSO
-ngram(1), ngram-count(1), ngram-format(5),
-S. F. Chen and J. Goodman, ``An Empirical Study of Smoothing Techniques for Language Modeling,'' TR-10-98, Computer Science Group, Harvard Univ., 1998.
-BUGS
-Work in progress.
-AUTHOR
-Deniz Yuret <dyuret@ku.edu.tr>, Andreas Stolcke <stolcke@icsi.berkeley.edu>
-Copyright (c) 2007 SRI International
+Based on Equation 2, the first entry represents the base 10 logarithm of the conditional probability (logprob) for the N-gram a_z.   
+This is followed by the actual words in the N-gram separated by spaces.   
+The last and optional entry is the base-10 logarithm of the backoff weight for (n+1)-grams starting with a_z.  
+Warning 3  
+Both backoff and interpolated models are represented in the same format.  
+This means interpolation is done during model building and represented in the ARPA format with logprob and backoff weight using equation (6).  
+Warning 4  
+Not all N-grams in the count file necessarily end up in the model file.  
+The options -gtmin, -gt1min, ..., -gt9min specify the minimum counts for N-grams to be included in the LM (not only for Good-Turing discounting but for the other methods as well).  
+By default all unigrams and bigrams are included, but for higher order N-grams only those with count >= 2 are included.  
+Some exceptions arise, because if one N-gram is included in the model file, all its prefix N-grams have to be included as well.   
+This causes some higher order 1-count N-grams to be included when using KN discounting, which uses modified counts as described in Warning 2.  
+Warning 5  
+Not all N-grams in the model file have backoff weights.  
+The highest order N-grams do not need a backoff weight.   
+For lower order N-grams backoff weights are only recorded for those that appear as the prefix of a longer N-gram included in the model.   
+For other lower order N-grams the backoff weight is implicitly 1 (or 0, in log representation).  
+SEE ALSO  
+ngram(1), ngram-count(1), ngram-format(5),  
+S. F. Chen and J. Goodman, ``An Empirical Study of Smoothing Techniques for Language Modeling,'' TR-10-98, Computer Science Group, Harvard Univ., 1998.  
+BUGS  
+Work in progress.  
+AUTHOR  
+Deniz Yuret <dyuret@ku.edu.tr>, Andreas Stolcke <stolcke@icsi.berkeley.edu>  
+Copyright (c) 2007 SRI International  
